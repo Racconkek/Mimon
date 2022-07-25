@@ -1,7 +1,10 @@
 package com.example.lemon
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -15,11 +18,7 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.menu_item_add -> {
-                    val intent = Intent()
-                    intent.action = Intent.ACTION_VIEW
-                    intent.type = "image/*"
-                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                    startActivity(intent)
+                    getContent.launch("image/*")
                     return@setOnItemSelectedListener true
                 }
                 R.id.menu_item_photos -> {
@@ -28,5 +27,9 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    private val getContent = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        Toast.makeText(applicationContext, uri?.path.toString(), Toast.LENGTH_LONG).show()
     }
 }
