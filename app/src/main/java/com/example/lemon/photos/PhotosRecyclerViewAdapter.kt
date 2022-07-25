@@ -32,6 +32,11 @@ class PhotosRecyclerViewAdapter(private var values: List<Photo>) :
 //        }
     }
 
+    fun setItems(list: List<Photo>){
+        values = list
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context)
             .inflate(R.layout.photo_list_item, parent, false)
@@ -44,7 +49,7 @@ class PhotosRecyclerViewAdapter(private var values: List<Photo>) :
         holder.countTextView.text = photo.count.toString()
         holder.buttonView.setOnClickListener {
             photo.count++
-            holder.countTextView.text = photo.count.toString() //КАСТЫЛЬ ГОВЕНЫЙ
+            notifyItemChanged(position)
         }
     }
 

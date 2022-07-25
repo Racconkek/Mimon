@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_gravity="center_horizontal"
     android:padding="20dp"
-    tools:context=".photos.Photos">
+    tools:context=".photos.PhotosFragment">
 
 
 </androidx.recyclerview.widget.RecyclerView>

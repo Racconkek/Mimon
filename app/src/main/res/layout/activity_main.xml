@@ -15,7 +15,7 @@
 
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/fragmentContainerView"
-        android:name="com.example.lemon.photos.Photos"
+        android:name="com.example.lemon.photos.PhotosFragment"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 </LinearLayout>

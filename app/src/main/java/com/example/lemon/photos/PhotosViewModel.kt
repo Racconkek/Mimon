@@ -1,15 +1,30 @@
 package com.example.lemon.photos
 
-import android.R
-import android.graphics.BitmapFactory
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.lemon.Photo
 import kotlin.random.Random
 
 
 class PhotosViewModel : ViewModel() {
-    fun getItems(): List<Photo> {
-        return MutableList(Random.nextInt(25)) { Photo(makeName(Random.nextInt(15)), "tjrtd", 0) }
+
+    private val mutablePhotosCollection: MutableLiveData<List<Photo>> = MutableLiveData()
+
+    val photosCollection: LiveData<List<Photo>> = mutablePhotosCollection
+
+    init {
+        mutablePhotosCollection.postValue(generateItems())
+    }
+
+    private fun generateItems(): List<Photo> {
+        return MutableList(Random.nextInt(25)) {
+            Photo(
+                makeName(Random.nextInt(5, 15)),
+                makeName(25),
+                0
+            )
+        }
     }
 
     private fun makeName(length: Int): String {
