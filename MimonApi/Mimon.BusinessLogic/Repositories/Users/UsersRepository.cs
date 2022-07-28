@@ -13,35 +13,42 @@ public class UsersRepository : IUsersRepository
 
     public async Task CreateOrUpdate(User user)
     {
-        await database.UsersStorage.AddAsync(ToStorageElement(user));
+        var existingUser = await database.UsersStorage
+            .FirstOrDefaultAsync(x => x.Id == user.Id);
+
+        if(existingUser is null)
+        {
+            await database.UsersStorage.AddAsync(ToStorageElement(user));
+        }
+        else
+        {
+            UpdateStorageElement(existingUser, user);
+        }
         await database.SaveChangesAsync();
     }
 
     public async Task<User> Read(Guid id)
     {
         var result = await database.UsersStorage
-            .FindAsync(id);
-        
-        return ToModel(result) ?? throw new InvalidOperationException("User not found");
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return result != null ? ToModel(result) : throw new Exception("User doesn't exist");
     }
 
-    public async Task<User?[]> ReadWithOrderAndNulls(Guid[] ids)
+    public async Task<User[]> ReadMany(Guid[] ids)
     {
         var results = await database.UsersStorage
             .Where(x => ids.Contains(x.Id))
-            .ToDictionaryAsync(x => x.Id);
+            .ToArrayAsync();
 
-        return ids
-            .Select(id => results.TryGetValue(id, out var user) ? user : null)
+        return results
             .Select(ToModel)
             .ToArray();
     }
 
-    private static User? ToModel(UserStorageElement? storageElement)
+    private static User ToModel(UserStorageElement storageElement)
     {
-        return storageElement == null
-            ? null
-            : new User 
+        return new User 
             {
                 Id = storageElement.Id,
                 UserName = storageElement.UserName
@@ -50,11 +57,15 @@ public class UsersRepository : IUsersRepository
 
     private static UserStorageElement ToStorageElement(User user)
     {
-        return new UserStorageElement
-        {
-            Id = user.Id,
-            UserName = user.UserName
-        };
+        return UpdateStorageElement(new UserStorageElement(), user);
+    }
+
+    private static UserStorageElement UpdateStorageElement(UserStorageElement existing, User user)
+    {
+        existing.Id = user.Id;
+        existing.UserName = user.UserName;
+
+        return existing;
     }
 
     private readonly DatabaseContext database;

@@ -2,6 +2,7 @@
 
 public interface IRelationsRepository
 {
-    Task CreateRelation(Guid userId, Guid friendId);
-    Task<Guid[]> FindFriends(Guid userId);
+    Task Create(Guid userId, Guid friendId);
+    Task<Guid[]> FindAll(Guid userId);
+    Task<bool> IsRelationExist(Guid userId, Guid friendId);
 }

@@ -33,16 +33,23 @@ public class UsersController : ControllerBase
         }
     }
 
-    [HttpGet]
-    public async Task<ActionResult<User[]>> FindUser([FromBody] Guid[] ids)
+    [HttpPost("find")]
+    public async Task<ActionResult<User[]>> FindUsers([FromBody] Guid[] ids)
     {
         return await usersService.Find(ids);
     }
 
-    [HttpPost]
-    public async Task<ActionResult<User[]>> GetUserFriends([FromRoute] Guid id)
+    [HttpGet("{id:guid}/friends")]
+    public async Task<ActionResult<UserFriend[]>> GetUserFriends([FromRoute] Guid id)
     {
         return await usersService.FindUserFriends(id);
+    }
+
+    [HttpGet("{id:guid}/friends/add/{friendId:guid}")]
+    public async Task<ActionResult> AddFriend([FromRoute] Guid id, [FromRoute] Guid friendId)
+    {
+        var addedSuccessfully = await usersService.TryAddFriend(id, friendId);
+        return addedSuccessfully ? Ok() : Conflict("Users are already friends");
     }
 
     private readonly IUsersService usersService;

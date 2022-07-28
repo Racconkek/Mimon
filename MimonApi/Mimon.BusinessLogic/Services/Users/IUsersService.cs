@@ -7,5 +7,6 @@ public interface IUsersService
     Task CreateOrUpdate(User user);
     Task<User> Find(Guid id);
     Task<User[]> Find(Guid[] ids);
-    Task<User[]> FindUserFriends(Guid id);
+    Task<UserFriend[]> FindUserFriends(Guid id);
+    Task<bool> TryAddFriend(Guid userId, Guid friendId);
 }

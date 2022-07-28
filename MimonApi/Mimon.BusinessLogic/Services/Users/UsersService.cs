@@ -14,7 +14,7 @@ public class UsersService : IUsersService
         this.usersRepository = usersRepository;
         this.relationsRepository = relationsRepository;
     }
-    
+
     public async Task CreateOrUpdate(User user)
     {
         await usersRepository.CreateOrUpdate(user);
@@ -27,13 +27,32 @@ public class UsersService : IUsersService
 
     public async Task<User[]> Find(Guid[] ids)
     {
-        return await usersRepository.ReadWithOrderAndNulls(ids);
+        return await usersRepository.ReadMany(ids);
     }
 
-    public async Task<User[]> FindUserFriends(Guid id)
+    public async Task<UserFriend[]> FindUserFriends(Guid id)
     {
-        var ids = await relationsRepository.FindFriends(id);
-        return await usersRepository.ReadWithOrderAndNulls(ids);
+        var ids = await relationsRepository.FindAll(id);
+        var friends = await usersRepository.ReadMany(ids);
+        var mutualTasks = friends.Select(x => relationsRepository.IsRelationExist(x.Id, id)).ToArray();
+        var mutual = await Task.WhenAll(mutualTasks);
+        return friends.Select((x, i) => new UserFriend
+        {
+            Friend = x,
+            IsMutual = mutual[i]
+        }).ToArray();
+    }
+
+    public async Task<bool> TryAddFriend(Guid userId, Guid friendId)
+    {
+        var isExist = await relationsRepository.IsRelationExist(userId, friendId);
+        if (isExist)
+        {
+            return false;
+        }
+
+        await relationsRepository.Create(userId, friendId);
+        return true;
     }
 
     private readonly IUsersRepository usersRepository;

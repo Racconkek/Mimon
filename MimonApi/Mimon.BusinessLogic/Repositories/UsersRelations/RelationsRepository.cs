@@ -1,19 +1,43 @@
-﻿namespace Mimon.BusinessLogic.Repositories.UsersRelations;
+﻿using Microsoft.EntityFrameworkCore;
+using Mimon.Api.Dto;
+using Mimon.BusinessLogic.Repositories.Database;
+
+namespace Mimon.BusinessLogic.Repositories.UsersRelations;
 
 public class RelationsRepository : IRelationsRepository
 {
-    public RelationsRepository()
+    public RelationsRepository(DatabaseContext database)
     {
-        
+        this.database = database;
     }
     
-    public Task CreateRelation(Guid userId, Guid friendId)
+    public async Task Create(Guid userId, Guid friendId)
     {
-        throw new NotImplementedException();
+        await database.RelationsStorage.AddAsync(new RelationStorageElement
+        {
+            UserId = userId,
+            FriendId = friendId
+        });
+
+        await database.SaveChangesAsync();
     }
 
-    public Task<Guid[]> FindFriends(Guid userId)
+    public async Task<Guid[]> FindAll(Guid userId)
     {
-        throw new NotImplementedException();
+        var result = await database.RelationsStorage
+            .Where(x => x.UserId == userId)
+            .ToArrayAsync();
+
+        return result.Select(x => x.FriendId).ToArray();
     }
+
+    public async Task<bool> IsRelationExist(Guid userId, Guid friendId)
+    {
+        var existing = await database.RelationsStorage
+            .FirstOrDefaultAsync(x => x.UserId == userId && x.FriendId == friendId);
+
+        return existing != null;
+    }
+
+    private readonly DatabaseContext database;
 }

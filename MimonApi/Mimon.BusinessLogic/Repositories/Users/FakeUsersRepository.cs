@@ -21,9 +21,12 @@ public class FakeUsersRepository : IUsersRepository
         return Task.FromResult(users[id]);
     }
 
-    public Task<User?[]> ReadWithOrderAndNulls(Guid[] ids)
+    public Task<User[]> ReadMany(Guid[] ids)
     {
-        var result = ids.Select(id => users.TryGetValue(id, out var user) ? user : null).ToArray();
+        var result = ids
+            .Where(id => users.ContainsKey(id))
+            .Select(id => users[id])
+            .ToArray();
 
         return Task.FromResult(result);
     }
