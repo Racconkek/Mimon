@@ -16,4 +16,10 @@
       <ProjectReference Include="..\Mimon.BusinessLogic\Mimon.BusinessLogic.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="start.bat">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

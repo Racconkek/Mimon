@@ -1,4 +1,3 @@
-using System.Reflection;
 using Microsoft.OpenApi.Models;
 using Mimon.BusinessLogic.Repositories.Database;
 using Mimon.BusinessLogic.Repositories.Users;
@@ -43,14 +42,14 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
-
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "MimonApi v1");
-                c.RoutePrefix = "swagger";
-            });
         }
+
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "MimonApi v1");
+            c.RoutePrefix = "swagger";
+        });
 
         app.UseHttpsRedirection();
 
