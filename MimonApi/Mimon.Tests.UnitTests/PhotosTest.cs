@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -65,22 +66,7 @@ public class PhotosTest
         Assert.IsNotEmpty(feed3);
 
         // челик решил пролайкать все мои фотки
-        var addLikeReactionsTasks = photos.Select(photo => photosService.CreateReaction(new Reaction
-        {
-            UserId = anotherUser.NonNullableId(),
-            PhotoId = photo.PhotoId,
-            ReactionType = ReactionType.Like
-        }));
-        await Task.WhenAll(addLikeReactionsTasks);
-        foreach (var (id, _) in photos)
-        {
-            var reactions = await photosService.GetPhotoReactions(id);
-            Assert.IsNotEmpty(reactions);
-            Assert.NotNull(reactions[0].Id, "Автоматически должен создаваться айдишник реакции");
-            Assert.AreEqual(id, reactions[0].PhotoId);
-            Assert.AreEqual(anotherUser.NonNullableId(), reactions[0].UserId);
-            Assert.AreEqual(ReactionType.Like, reactions[0].ReactionType);
-        }
+        await CheckPhotosWithReactions(anotherUser, photos.Select(x => x.PhotoId), ReactionType.Like);
     }
 
     [Test]
@@ -96,53 +82,23 @@ public class PhotosTest
 
         // первый друг добавил нас в ответ
         await usersService.TryAddFriend(friend1.User.NonNullableId(), user.NonNullableId());
-        var feed2 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 100);
+        var feed2 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 20);
         Assert.AreEqual(friend1.PhotoIds.Length, feed2.Length);
 
         // второй друг добавил нас в ответ
         await usersService.TryAddFriend(friend2.User.NonNullableId(), user.NonNullableId());
-        var feed3 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 100);
+        var feed3 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 40);
         Assert.AreEqual(friend1.PhotoIds.Length + friend2.PhotoIds.Length, feed3.Length);
 
         // третий друг добавил нас в ответ
         await usersService.TryAddFriend(friend3.User.NonNullableId(), user.NonNullableId());
-        var feed4 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 100);
+        var feed4 = await photosService.GetFeedForUser(user.NonNullableId(), 0, 60);
         Assert.AreEqual(friend1.PhotoIds.Length + friend2.PhotoIds.Length + friend3.PhotoIds.Length, feed4.Length);
         
         // первому и второму друзьям я ставлю лайки, а третьего считаю клоуном xdd
-        foreach (var id in friend1.PhotoIds.Concat(friend2.PhotoIds))
-        {
-            await photosService.CreateReaction(new Reaction
-            {
-                PhotoId = id,
-                UserId = user.NonNullableId(),
-                ReactionType = ReactionType.Like
-            });
-            
-            var reactions = await photosService.GetPhotoReactions(id);
-            Assert.IsNotEmpty(reactions);
-            Assert.NotNull(reactions[0].Id, "Автоматически должен создаваться айдишник реакции");
-            Assert.AreEqual(id, reactions[0].PhotoId);
-            Assert.AreEqual(user.NonNullableId(), reactions[0].UserId);
-            Assert.AreEqual(ReactionType.Like, reactions[0].ReactionType);
-        }
-
-        foreach (var id in friend3.PhotoIds)
-        {
-            await photosService.CreateReaction(new Reaction
-            {
-                PhotoId = id,
-                UserId = user.NonNullableId(),
-                ReactionType = ReactionType.Clown
-            });
-            
-            var reactions = await photosService.GetPhotoReactions(id);
-            Assert.IsNotEmpty(reactions);
-            Assert.NotNull(reactions[0].Id, "Автоматически должен создаваться айдишник реакции");
-            Assert.AreEqual(id, reactions[0].PhotoId);
-            Assert.AreEqual(user.NonNullableId(), reactions[0].UserId);
-            Assert.AreEqual(ReactionType.Clown, reactions[0].ReactionType);
-        }
+        await CheckPhotosWithReactions(user, friend1.PhotoIds, ReactionType.Like);
+        await CheckPhotosWithReactions(user, friend2.PhotoIds, ReactionType.Like);
+        await CheckPhotosWithReactions(user, friend3.PhotoIds, ReactionType.Clown);
     }
 
     private async Task<(Guid PhotoId, byte[] PhotoBytes)[]> GeneratePhotosInRepository(Guid userId, bool alsoCreateFiles = false)
@@ -183,6 +139,26 @@ public class PhotosTest
             PhotoIds = photos.Select(x => x.PhotoId).ToArray(),
             PhotoBytes = photos.Select(x => x.PhotoBytes).ToArray()
         };
+    }
+
+    private async Task CheckPhotosWithReactions(User reactedUser, IEnumerable<Guid> photos, ReactionType reactionType)
+    {
+        foreach (var id in photos)
+        {
+            await photosService.CreateReaction(new Reaction
+            {
+                PhotoId = id,
+                UserId = reactedUser.NonNullableId(),
+                ReactionType = reactionType
+            });
+            
+            var reactions = await photosService.GetPhotoReactions(id);
+            Assert.IsNotEmpty(reactions);
+            Assert.NotNull(reactions[0].Id, "Автоматически должен создаваться айдишник реакции");
+            Assert.AreEqual(id, reactions[0].PhotoId);
+            Assert.AreEqual(reactedUser.NonNullableId(), reactions[0].UserId);
+            Assert.AreEqual(reactionType, reactions[0].ReactionType);
+        }
     }
 
     /// <summary>
