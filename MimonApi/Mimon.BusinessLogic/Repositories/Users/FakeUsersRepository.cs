@@ -1,4 +1,4 @@
-﻿using Mimon.Api.Dto;
+﻿using Mimon.Api.Dto.Users;
 
 namespace Mimon.BusinessLogic.Repositories.Users;
 
@@ -11,7 +11,8 @@ public class FakeUsersRepository : IUsersRepository
     
     public Task CreateOrUpdate(User user)
     {
-        users[user.Id] = user;
+        user.Id ??= Guid.NewGuid();
+        users[user.Id.Value] = user;
 
         return Task.CompletedTask;
     }

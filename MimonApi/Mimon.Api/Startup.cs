@@ -1,7 +1,10 @@
 using Microsoft.OpenApi.Models;
 using Mimon.BusinessLogic.Repositories.Database;
+using Mimon.BusinessLogic.Repositories.Photos;
+using Mimon.BusinessLogic.Repositories.Reactions;
 using Mimon.BusinessLogic.Repositories.Users;
 using Mimon.BusinessLogic.Repositories.UsersRelations;
+using Mimon.BusinessLogic.Services.Photos;
 using Mimon.BusinessLogic.Services.Users;
 
 namespace Mimon.Api;
@@ -24,14 +27,20 @@ public class Startup
         {
             services.AddSingleton<IRelationsRepository, FakeRelationsRepository>();
             services.AddSingleton<IUsersRepository, FakeUsersRepository>();
+            services.AddSingleton<IPhotosRepository, FakePhotosRepository>();
+            services.AddSingleton<IReactionsRepository, FakeReactionsRepository>();
         }
         else
         {
             services.AddTransient<IRelationsRepository, RelationsRepository>();
             services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IPhotosRepository, PhotosRepository>();
+            services.AddTransient<IReactionsRepository, ReactionsRepository>();
         }
 
+        services.AddTransient<IPhotoDataRepository, PhotoDataRepository>();
         services.AddTransient<IUsersService, UsersService>();
+        services.AddTransient<IPhotosService, PhotosService>();
 
         services.AddControllers();
         services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "MimonApi", Version = "v1" }); });

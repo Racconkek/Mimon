@@ -1,4 +1,4 @@
-﻿using Mimon.Api.Dto;
+﻿using Mimon.Api.Dto.Users;
 
 namespace Mimon.BusinessLogic.Repositories.Users;
 

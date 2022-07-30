@@ -1,4 +1,4 @@
-namespace Mimon.Api.Dto;
+namespace Mimon.Api.Dto.Users;
 
 public class UserFriend
 {

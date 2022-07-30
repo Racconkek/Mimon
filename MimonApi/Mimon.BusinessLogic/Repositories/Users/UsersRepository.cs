@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Mimon.Api.Dto;
+using Mimon.Api.Dto.Users;
 using Mimon.BusinessLogic.Repositories.Database;
 
 namespace Mimon.BusinessLogic.Repositories.Users;
@@ -62,7 +62,7 @@ public class UsersRepository : IUsersRepository
 
     private static UserStorageElement UpdateStorageElement(UserStorageElement existing, User user)
     {
-        existing.Id = user.Id;
+        existing.Id = user.Id ?? Guid.NewGuid();
         existing.UserName = user.UserName;
 
         return existing;

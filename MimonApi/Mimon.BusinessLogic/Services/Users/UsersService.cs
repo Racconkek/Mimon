@@ -1,4 +1,4 @@
-﻿using Mimon.Api.Dto;
+﻿using Mimon.Api.Dto.Users;
 using Mimon.BusinessLogic.Repositories.Users;
 using Mimon.BusinessLogic.Repositories.UsersRelations;
 
@@ -30,17 +30,19 @@ public class UsersService : IUsersService
         return await usersRepository.ReadMany(ids);
     }
 
-    public async Task<UserFriend[]> FindUserFriends(Guid id)
+    public async Task<UserFriend[]> FindUserFriends(Guid id, bool onlyMutual = false)
     {
         var ids = await relationsRepository.FindAll(id);
         var friends = await usersRepository.ReadMany(ids);
-        var mutualTasks = friends.Select(x => relationsRepository.IsRelationExist(x.Id, id)).ToArray();
+        var mutualTasks = friends.Select(x => relationsRepository.IsRelationExist(x.Id!.Value, id)).ToArray();
         var mutual = await Task.WhenAll(mutualTasks);
         return friends.Select((x, i) => new UserFriend
-        {
-            Friend = x,
-            IsMutual = mutual[i]
-        }).ToArray();
+            {
+                Friend = x,
+                IsMutual = mutual[i]
+            })
+            .Where(x => !onlyMutual || x.IsMutual)
+            .ToArray();
     }
 
     public async Task<bool> TryAddFriend(Guid userId, Guid friendId)

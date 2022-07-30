@@ -6,6 +6,6 @@ public class PhotoStorageElement
 {
     [Key]
     public Guid Id { get; set; }
-    
     public Guid UserId { get; set; }
+    public DateTime CreationDateTime { get; set; }
 }

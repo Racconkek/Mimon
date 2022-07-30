@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Mimon.Api.Dto;
+using Mimon.Api.Dto.Users;
 using Mimon.BusinessLogic.Services.Users;
 
-namespace MimonAPI.Controllers;
+namespace Mimon.Api.Controllers;
 
 [ApiController]
 [Route("users")]
