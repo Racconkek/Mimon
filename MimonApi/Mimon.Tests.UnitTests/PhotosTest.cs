@@ -20,13 +20,13 @@ namespace Mimon.Tests.UnitTests;
 public class PhotosTest
 {
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
         usersService = new UsersService(new FakeUsersRepository(), new FakeRelationsRepository());
         photosRepository = new FakePhotosRepository();
         photosService = new PhotosService(usersService, photosRepository, new PhotoDataRepository(true), new FakeReactionsRepository());
         user = UserGenerator.Generate();
-        usersService.CreateOrUpdate(user).GetAwaiter().GetResult();
+        await usersService.CreateOrUpdate(user);
     }
 
     [Test]

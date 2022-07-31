@@ -13,11 +13,11 @@ namespace Mimon.Tests.UnitTests;
 public class UsersTests
 {
     [SetUp]
-    public void Setup()
+    public async Task Setup()
     {
         usersService = new UsersService(new FakeUsersRepository(), new FakeRelationsRepository());
         user = UserGenerator.Generate();
-        usersService.CreateOrUpdate(user).GetAwaiter().GetResult();
+        await usersService.CreateOrUpdate(user);
     }
 
     [Test]
