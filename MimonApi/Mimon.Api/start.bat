@@ -1,1 +1,1 @@
-Mimon.Api.exe --urls http://*:6001
+Mimon.Api.exe --urls https://*:6001
